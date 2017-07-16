@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <fragment
+        android:id="@+id/mgooglemap"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+      >
+    </fragment>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/textViewX"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:text="X:"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/textViewY"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/textViewX"
+            android:text="Y:"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/textViewZ"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/textViewY"
+            android:text="Z:"
+            android:textSize="16sp" />
+        <TextView
+            android:id="@+id/textViewMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/textViewZ"
+            android:text="message:"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/textViewMessage"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textViewMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:layout_below="@+id/textViewLevel"
+            android:textSize="16sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
