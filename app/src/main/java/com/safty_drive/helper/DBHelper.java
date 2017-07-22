@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "myTest.db";
-    public static final String TABLE_NAME = "sensors";
+    public static final String TABLE_NAME = "sensor_value";
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -20,7 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         // create table Orders(Id integer primary key, CustomName text, OrderPrice integer, Country text);
-        String sql = "create table if not exists " + TABLE_NAME + " (Id integer primary key,xValue integer,yValue integer,zValue integer,ctime DATETIME DEFAULT CURRENT_TIMESTAMP)";
+        String sql = "create table if not exists " + TABLE_NAME + " (Id integer primary key,xValue integer,yValue integer,zValue integer,ctime INTEGER)";
         sqLiteDatabase.execSQL(sql);
     }
 

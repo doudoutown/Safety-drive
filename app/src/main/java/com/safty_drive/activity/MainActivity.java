@@ -8,6 +8,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,11 +22,14 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.safty_drive.HttpResponeCallBack;
 import com.safty_drive.R;
 import com.safty_drive.RequestApiData;
 import com.safty_drive.bean.SensorBean;
 import com.safty_drive.dao.SensorDao;
+import com.safty_drive.util.ChartUtils;
+import com.safty_drive.util.TimeUtils;
 import com.safty_drive.vo.UserBaseInfo;
 import com.safty_drive.vo.UserDriveVo;
 
@@ -33,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.TimeZone;
 
 public class MainActivity extends Activity implements SensorEventListener, HttpResponeCallBack {
 
@@ -69,6 +76,13 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
     Calendar mCalendar;
     private SensorDao sensorDao;
     private LineChart chart;
+    private int index = 0;
+    private boolean start = false;
+
+    private Button startBtn;
+    private Button stopBtn;
+//    private Button clearBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +92,33 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
         textviewY = (TextView) findViewById(R.id.textViewY);
         textviewZ = (TextView) findViewById(R.id.textViewZ);
         textViewMessage = (TextView) findViewById(R.id.textViewMessage);
+
+        startBtn = findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                start = true;
+            }
+        });
+
+
+        stopBtn = findViewById(R.id.stopBtn);
+
+        stopBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                start = false;
+            }
+        });
+//        clearBtn = findViewById(R.id.clearBtn);
+//        clearBtn.setOnClickListener(new Button.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                chart.clear();
+//                chart.setData(new LineData());
+//                chart.invalidate();
+//            }
+//        });
 
         textViewLevel = findViewById(R.id.textViewLevel);
         textViewMsg = findViewById(R.id.textViewMsg);
@@ -93,61 +134,18 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
 
         sensorDao = new SensorDao(this);
 
-        chart = (LineChart) findViewById(R.id.chart);
-//        initChart(chart);
-    }
-
-    public LineChart initChart(LineChart chart) {
-        // 不显示数据描述
-        chart.getDescription().setEnabled(false);
-        // 没有数据的时候，显示“暂无数据”
-        chart.setNoDataText("暂无数据");
-        // 不显示表格颜色
-        chart.setDrawGridBackground(false);
-        // 不可以缩放
-        chart.setScaleEnabled(false);
-        // 不显示y轴右边的值
-        chart.getAxisRight().setEnabled(false);
-        // 不显示图例
-        Legend legend = chart.getLegend();
-        legend.setEnabled(false);
-        // 向左偏移15dp，抵消y轴向右偏移的30dp
-        chart.setExtraLeftOffset(-15);
-
-        XAxis xAxis = chart.getXAxis();
-        // 不显示x轴
-        xAxis.setDrawAxisLine(false);
-        // 设置x轴数据的位置
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextColor(Color.WHITE);
-        xAxis.setTextSize(12);
-        xAxis.setGridColor(Color.parseColor("#30FFFFFF"));
-        // 设置x轴数据偏移量
-        xAxis.setYOffset(-12);
-
-        YAxis yAxis = chart.getAxisLeft();
-        // 不显示y轴
-        yAxis.setDrawAxisLine(false);
-        // 设置y轴数据的位置
-        yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-        // 不从y轴发出横向直线
-        yAxis.setDrawGridLines(false);
-        yAxis.setTextColor(Color.WHITE);
-        yAxis.setTextSize(12);
-        // 设置y轴数据偏移量
-        yAxis.setXOffset(30);
-        yAxis.setYOffset(-3);
-        yAxis.setAxisMinimum(0);
-
-        //Matrix matrix = new Matrix();
-        // x轴缩放1.5倍
-        //matrix.postScale(1.5f, 1f);
-        // 在图表动画显示之前进行缩放
-        //chart.getViewPortHandler().refresh(matrix, chart, false);
-        // x轴执行动画
-        //chart.animateX(2000);
-        chart.invalidate();
-        return chart;
+        chart = findViewById(R.id.chart);
+        ChartUtils.initChart(chart);
+        List<Entry> xValues = new ArrayList<>();
+        List<Entry> yValues = new ArrayList<>();
+        List<SensorBean> beens = sensorDao.query();
+        for (SensorBean been : beens) {
+            index++;
+            xValues.add(new Entry(index, been.getxValue()));
+            yValues.add(new Entry(index, been.getyValue()));
+        }
+        ChartUtils.notifyDataSetChanged(chart, xValues, ChartUtils.xValue);
+        ChartUtils.notifyDataSetChanged(chart, yValues, ChartUtils.yValue);
     }
 
 
@@ -163,6 +161,9 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
         }
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            if (!start) {
+                return;
+            }
             int x = (int) event.values[0];
             int y = (int) event.values[1];
             int z = (int) event.values[2];
@@ -185,34 +186,8 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
                 Log.d(TAG, " sensor isMoveorchanged....");
                 textViewMessage.setText("检测手机在移动..");
                 sensorDao.add(x, y, z);
-
-                List<SensorBean> sensorBeans = sensorDao.query();
-                List<Entry> xEntries = new ArrayList<Entry>();
-                List<Entry> yEntries = new ArrayList<Entry>();
-                List<Entry> zEntries = new ArrayList<Entry>();
-                for (SensorBean sensorBean : sensorBeans) {
-                    xEntries.add(new Entry(sensorBean.getCtime().getTime(), sensorBean.getxValue()));
-                    yEntries.add(new Entry(sensorBean.getCtime().getTime(), sensorBean.getyValue()));
-                    zEntries.add(new Entry(sensorBean.getCtime().getTime(), sensorBean.getzValue()));
-                }
-                LineDataSet xDataSet = new LineDataSet(xEntries, "X");
-                xDataSet.setColor(Color.RED);
-                LineDataSet yDataSet = new LineDataSet(yEntries, "Y");
-                yDataSet.setColor(Color.GREEN);
-                LineDataSet zDataSet = new LineDataSet(zEntries, "Z");
-                zDataSet.setColor(Color.BLUE);
-                LineData lineData = new LineData(xDataSet);
-                lineData.addDataSet(yDataSet);
-                lineData.addDataSet(zDataSet);
-                chart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
-                    @Override
-                    public String getFormattedValue(float value, AxisBase axis) {
-                        SimpleDateFormat df = new SimpleDateFormat("dd HH:mm:ss");
-                        return df.format(new Date((long) value));
-                    }
-                });
-                chart.setData(lineData);
-                chart.invalidate(); // refresh
+                this.addEntry(0, x, index++);
+                this.addEntry(1, y, index++);
             }
 
 
@@ -222,6 +197,43 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
 
         }
     }
+
+    public void addEntry(Integer index,Integer value, long time) {
+        LineData lineData = chart.getData();
+
+        if (lineData != null) {
+            ILineDataSet lastSet = lineData.getDataSetByIndex(index);
+            // 这里要注意，x轴的index是从零开始的
+            // 假设index=2，那么getEntryCount()就等于3了
+            int count = lastSet.getEntryCount();
+            // add a new x-value first 这行代码不能少
+
+            // 位最后一个DataSet添加entry
+            lineData.addEntry(new Entry(time, value), index);
+
+            chart.notifyDataSetChanged();
+            chart.moveViewTo(value, count, YAxis.AxisDependency.LEFT);
+
+        }
+    }
+
+    private LineDataSet createSet(String label) {
+        LineDataSet set = new LineDataSet(null, label);
+        set.setLineWidth(2.5f);
+        set.setCircleRadius(4.5f);
+        if ("X".equals(label)) {
+            set.setColor(Color.RED);
+        } else {
+            set.setColor(Color.BLUE);
+        }
+        set.setCircleColor(Color.rgb(240, 99, 99));
+        set.setHighLightColor(Color.rgb(190, 190, 190));
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setValueTextSize(10f);
+
+        return set;
+    }
+
 
     @Override
     public void onResponeStart(String apiName) {
