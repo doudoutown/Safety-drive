@@ -36,6 +36,7 @@ import com.safty_drive.vo.UserDriveVo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -139,11 +140,18 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
         List<Entry> xValues = new ArrayList<>();
         List<Entry> yValues = new ArrayList<>();
         List<SensorBean> beens = sensorDao.query();
-        for (SensorBean been : beens) {
+        if (null == beens || beens.size() == 0) {
             index++;
-            xValues.add(new Entry(index, been.getxValue()));
-            yValues.add(new Entry(index, been.getyValue()));
+            xValues.add(new Entry(index, 0));
+            yValues.add(new Entry(index, 0));
+        } else {
+            for (SensorBean been : beens) {
+                index++;
+                xValues.add(new Entry(index, been.getxValue()));
+                yValues.add(new Entry(index, been.getyValue()));
+            }
         }
+
         ChartUtils.notifyDataSetChanged(chart, xValues, ChartUtils.xValue);
         ChartUtils.notifyDataSetChanged(chart, yValues, ChartUtils.yValue);
     }
