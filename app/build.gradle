@@ -30,4 +30,5 @@ dependencies {
     compile 'com.mcxiaoke.volley:library:1.0.+'
     compile 'com.google.code.gson:gson:2.2.4'
     testCompile 'junit:junit:4.12'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
 }

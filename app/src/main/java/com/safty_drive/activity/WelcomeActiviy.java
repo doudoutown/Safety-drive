@@ -48,23 +48,30 @@ public class WelcomeActiviy extends Activity implements HttpResponeCallBack {
              */
             @Override
             public void onAnimationEnd(Animation animation) {
+
+                Intent intent = new Intent();
+                intent.setClass(WelcomeActiviy.this, MainActivity.class);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right);
+                finish();
                 //暂时用用户名密码登录
-                String username = UserPreference.read(KeyConstance.USERNAME, null);//软件还没有保持账号
-                String token = UserPreference.read(KeyConstance.TOKEN, null);
-                String password = UserPreference.read(KeyConstance.PWD, null);
-
-                if (TextUtils.isEmpty(token)) {
-                    Intent intent = new Intent();
-                    intent.setClass(WelcomeActiviy.this, LoginActivity.class);
-                    startActivity(intent);
-                    overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-                    finish();
-                } else {
-                    //用保存的信息直接登录
-                    RequestApiData.getInstance().getLoginData(username, password,
-                            UserBaseInfo.class, WelcomeActiviy.this);
-
-                }
+//                String username = UserPreference.read(KeyConstance.USERNAME, null);//软件还没有保持账号
+//                String token = UserPreference.read(KeyConstance.TOKEN, null);
+//                String password = UserPreference.read(KeyConstance.PWD, null);
+//
+//                if (TextUtils.isEmpty(token)) {
+//                    Intent intent = new Intent();
+//                    intent.setClass(WelcomeActiviy.this, LoginActivity.class);
+//                    startActivity(intent);
+//                    overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+//                    finish();
+//                } else {
+//                    //用保存的信息直接登录
+//                    RequestApiData.getInstance().getLoginData(username, password,
+//                            UserBaseInfo.class, WelcomeActiviy.this);
+//
+//                }
             }
 
             @Override
