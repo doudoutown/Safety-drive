@@ -138,22 +138,22 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
         chart = findViewById(R.id.chart);
         ChartUtils.initChart(chart);
         List<Entry> xValues = new ArrayList<>();
-        List<Entry> yValues = new ArrayList<>();
+        List<Entry> zValues = new ArrayList<>();
         List<SensorBean> beens = sensorDao.query();
         if (null == beens || beens.size() == 0) {
             index++;
             xValues.add(new Entry(index, 0));
-            yValues.add(new Entry(index, 0));
+            zValues.add(new Entry(index, 0));
         } else {
             for (SensorBean been : beens) {
                 index++;
                 xValues.add(new Entry(index, been.getxValue()));
-                yValues.add(new Entry(index, been.getyValue()));
+                zValues.add(new Entry(index, been.getzValue()));
             }
         }
 
         ChartUtils.notifyDataSetChanged(chart, xValues, ChartUtils.xValue);
-        ChartUtils.notifyDataSetChanged(chart, yValues, ChartUtils.yValue);
+        ChartUtils.notifyDataSetChanged(chart, zValues, ChartUtils.zValue);
     }
 
 
@@ -195,7 +195,7 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
                 textViewMessage.setText("检测手机在移动..");
                 sensorDao.add(x, y, z);
                 this.addEntry(0, x, index++);
-                this.addEntry(1, y, index++);
+                this.addEntry(1, z, index++);
             }
 
 

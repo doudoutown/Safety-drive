@@ -22,7 +22,7 @@ import java.util.List;
 public class ChartUtils {
 
     public static int xValue = 0;
-    public static int yValue = 1;
+    public static int zValue = 1;
 
     /**
      * 初始化图表
@@ -103,7 +103,7 @@ public class ChartUtils {
                     // 设置曲线颜色
                     lineDataSet.setColor(Color.RED);
                 } else {
-                    lineDataSet = new LineDataSet(values, "Y");
+                    lineDataSet = new LineDataSet(values, "Z");
                     // 设置曲线颜色
                     lineDataSet.setColor(Color.BLUE);
                 }
@@ -126,7 +126,7 @@ public class ChartUtils {
                 // 设置曲线颜色
                 lineDataSet.setColor(Color.RED);
             } else {
-                lineDataSet = new LineDataSet(values, "Y");
+                lineDataSet = new LineDataSet(values, "Z");
                 // 设置曲线颜色
                 lineDataSet.setColor(Color.BLUE);
             }
