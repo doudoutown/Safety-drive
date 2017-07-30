@@ -11,6 +11,9 @@ public class SensorBean {
     private Integer yValue;
     private Integer zValue;
     private Date ctime;
+    private Double latitude;
+    private Double longitude;
+    private Float speed;
 
     public Integer getxValue() {
         return xValue;
@@ -42,5 +45,29 @@ public class SensorBean {
 
     public void setCtime(Date ctime) {
         this.ctime = ctime;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(Float speed) {
+        this.speed = speed;
     }
 }

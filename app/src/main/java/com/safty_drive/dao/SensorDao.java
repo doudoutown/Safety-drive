@@ -27,10 +27,10 @@ public class SensorDao {
         db = helper.getWritableDatabase();
     }
 
-    public void add(Integer x, Integer y, Integer z) {
+    public void add(Integer x, Integer y, Integer z, Double latitude, Double longitude, Float speed) {
         db.beginTransaction();  //开始事务
         try {
-            db.execSQL("INSERT INTO sensor_value(xValue,yValue,zValue,ctime) VALUES( ?, ?, ?,?)", new Object[]{x, y, z, System.currentTimeMillis()});
+            db.execSQL("INSERT INTO sensor_value(xValue,yValue,zValue,ctime, latitude ,longitude , speed) VALUES( ?, ?, ?,?,?,?,?)", new Object[]{x, y, z, System.currentTimeMillis(), latitude, longitude, speed});
             db.setTransactionSuccessful();  //设置事务成功完成
         } finally {
             db.endTransaction();    //结束事务
@@ -46,10 +46,23 @@ public class SensorDao {
             sensor.setxValue(c.getInt(c.getColumnIndex("xValue")));
             sensor.setyValue(c.getInt(c.getColumnIndex("yValue")));
             sensor.setzValue(c.getInt(c.getColumnIndex("zValue")));
+            sensor.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
+            sensor.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
+            sensor.setSpeed(c.getFloat(c.getColumnIndex("speed")));
             sensors.add(sensor);
         }
         c.close();
         return sensors;
+    }
+
+    public void deleteAll() {
+        db.beginTransaction();  //开始事务
+        try {
+            db.execSQL("delete from sensor_value");
+            db.setTransactionSuccessful();  //设置事务成功完成
+        } finally {
+            db.endTransaction();    //结束事务
+        }
     }
 
     public Cursor queryTheCursor() {

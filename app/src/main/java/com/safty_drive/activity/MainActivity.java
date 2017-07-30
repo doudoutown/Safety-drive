@@ -1,12 +1,19 @@
 package com.safty_drive.activity;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +36,7 @@ import com.safty_drive.RequestApiData;
 import com.safty_drive.bean.SensorBean;
 import com.safty_drive.dao.SensorDao;
 import com.safty_drive.util.ChartUtils;
+import com.safty_drive.util.LocationUtils;
 import com.safty_drive.util.TimeUtils;
 import com.safty_drive.vo.UserBaseInfo;
 import com.safty_drive.vo.UserDriveVo;
@@ -82,7 +90,7 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
 
     private Button startBtn;
     private Button stopBtn;
-//    private Button clearBtn;
+    private Button clearBtn;
 
 
     @Override
@@ -111,15 +119,24 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
                 start = false;
             }
         });
-//        clearBtn = findViewById(R.id.clearBtn);
-//        clearBtn.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                chart.clear();
-//                chart.setData(new LineData());
-//                chart.invalidate();
-//            }
-//        });
+        clearBtn = findViewById(R.id.clearBtn);
+        clearBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                start=false;
+                index=0;
+                sensorDao.deleteAll();
+                chart.clear();
+                List<Entry> xValues = new ArrayList<>();
+                List<Entry> zValues = new ArrayList<>();
+                xValues.add(new Entry(index, 0));
+                zValues.add(new Entry(index, 0));
+
+                ChartUtils.notifyDataSetChanged(chart, xValues, ChartUtils.xValue);
+                ChartUtils.notifyDataSetChanged(chart, zValues, ChartUtils.zValue);
+
+            }
+        });
 
         textViewLevel = findViewById(R.id.textViewLevel);
         textViewMsg = findViewById(R.id.textViewMsg);
@@ -193,7 +210,9 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
                 lasttimestamp = stamp;
                 Log.d(TAG, " sensor isMoveorchanged....");
                 textViewMessage.setText("检测手机在移动..");
-                sensorDao.add(x, y, z);
+                Location location = this.getBestLocation();
+                sensorDao.add(x, y, z, location.getLatitude(), location.getLongitude(), location.getSpeed());
+
                 this.addEntry(0, x, index++);
                 this.addEntry(1, z, index++);
             }
@@ -206,7 +225,7 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
         }
     }
 
-    public void addEntry(Integer index,Integer value, long time) {
+    public void addEntry(Integer index, Integer value, long time) {
         LineData lineData = chart.getData();
 
         if (lineData != null) {
@@ -279,6 +298,22 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
 //        chart.invalidate();
 //        setChartData(chart, values);
 //    }
+
+    private Location getBestLocation() {
+        Criteria c = new Criteria();//Criteria类是设置定位的标准信息（系统会根据你的要求，匹配最适合你的定位供应商），一个定位的辅助信息的类
+        c.setPowerRequirement(Criteria.POWER_LOW);//设置低耗电
+        c.setAltitudeRequired(true);//设置需要海拔
+        c.setBearingAccuracy(Criteria.ACCURACY_COARSE);//设置COARSE精度标准
+        c.setAccuracy(Criteria.ACCURACY_LOW);//设置低精度
+        //... Criteria 还有其他属性，就不一一介绍了
+        Location best = LocationUtils.getBestLocation(this,c);
+        if (best == null) {
+            Toast.makeText(this, " best location is null", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "best location: lat==" + best.getLatitude() + " lng==" + best.getLongitude()+"speed"+ best.getSpeed(), Toast.LENGTH_SHORT).show();
+        }
+        return best;
+    }
 
 }
 
