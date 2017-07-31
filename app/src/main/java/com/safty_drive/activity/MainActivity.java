@@ -211,7 +211,11 @@ public class MainActivity extends Activity implements SensorEventListener, HttpR
                 Log.d(TAG, " sensor isMoveorchanged....");
                 textViewMessage.setText("检测手机在移动..");
                 Location location = this.getBestLocation();
-                sensorDao.add(x, y, z, location.getLatitude(), location.getLongitude(), location.getSpeed());
+                if (null != location) {
+                    sensorDao.add(x, y, z, location.getLatitude(), location.getLongitude(), location.getSpeed());
+                } else {
+                    sensorDao.add(x, y, z, 0d,0d,0f);
+                }
 
                 this.addEntry(0, x, index++);
                 this.addEntry(1, z, index++);
